@@ -1,201 +1,49 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[3]:
-
-
-
-
-
-# In[1]:
-
-
-# Import necessary modules
 from tkinter import *
 from tkinter import ttk
-from googletrans import Translator, LANGUAGES
+from deep_translator import GoogleTranslator
+from deep_translator.constants import GOOGLE_LANGUAGES_TO_CODES as LANGUAGES
 import speech_recognition as sr
 from gtts import gTTS
 import os
 import threading
 
-# Create the main window
+# Initialize window
 root = Tk()
-root.geometry('1100x400') # Set the window size
-root.resizable(0, 0) # Disable window resizing
-root['bg'] = 'pink' # Set background color
-root.title('Real-time Translator with Voice Input') # Set window title
+root.geometry('1100x600')
+root.resizable(0, 0)
+root.title('Real-time Translator with Voice Input and Idiom Conversion')
+root['bg'] = '#1c1c1c'
 
-# Create a label for the title
-Label(root, text="Language Translator", font="Arial 20 bold").pack()
+# Translator & language setup
+language = list(LANGUAGES.keys())
+lang_code_dict = LANGUAGES
 
-# Create a label for the input text
-Label(root, text="Enter Text", font='arial 13 bold', bg='white smoke').place(x=165, y=90)
-
-# Create an entry widget for user input
-Input_text = Entry(root, width=60)
-Input_text.place(x=30, y=130)
-
-# Create a label for the output
-Label(root, text="Output", font='arial 13 bold', bg='white smoke').place(x=780, y=90)
-
-# Create a text widget for displaying the translation
-Output_text = Text(root, font='arial 10', height=5, wrap=WORD, padx=5, pady=5, width=50)
-Output_text.place(x=600, y=130)
-
-# Get the list of supported languages
-language = list(LANGUAGES.values())
-
-# Create a Combobox for selecting the destination language
-dest_lang = ttk.Combobox(root, values=language, width=22)
-dest_lang.place(x=130, y=180)
-dest_lang.set('Choose Language') # Set default value
-
-# Function to perform translation
-def Translate():
-    try:
-        # Create a Translator object
-        translator = Translator()
-        
-        # Translate the input text to the selected destination language
-        translation = translator.translate(Input_text.get(), dest=dest_lang.get())
-        
-        # Clear the output text and insert the translation
-        Output_text.delete(1.0, END)
-        Output_text.insert(END, translation.text)
-        
-        # Optionally speak the translated text
-        Speak(translation.text)
-    except Exception as e:
-        print(f"Translation error: {e}")
-
-# Function to capture voice input and convert to text
-def Listen():
-    recognizer = sr.Recognizer()
-    with sr.Microphone() as source:
-        print("Listening...")
-        try:
-            audio_data = recognizer.listen(source)
-            print("Recognizing...")
-            text = recognizer.recognize_google(audio_data)
-            print(f"Recognized Text: {text}")
-            Input_text.delete(0, END)  # Clear the input field
-            Input_text.insert(END, text)  # Insert the recognized text into the input field
-        except sr.UnknownValueError:
-            print("Google Speech Recognition could not understand the audio")
-        except sr.RequestError as e:
-            print(f"Could not request results; {e}")
-
-# Function to speak the translated text
-def Speak(text):
-    try:
-        tts = gTTS(text=text, lang=dest_lang.get())
-        tts.save("output.mp3")
-        os.system("start output.mp3")  # Use 'start' for Windows, 'open' for Mac, and 'xdg-open' for Linux
-    except Exception as e:
-        print(f"Speech error: {e}")
-
-# Create a button for triggering translation
-trans_btn = Button(root, text='Translate', font='arial 12 bold', pady=5, command=Translate, bg='orange', activebackground='green')
-trans_btn.place(x=445, y=180)
-
-# Create a button for triggering voice input
-listen_btn = Button(root, text='Speak', font='arial 12 bold', pady=5, command=lambda: threading.Thread(target=Listen).start(), bg='lightblue', activebackground='green')
-listen_btn.place(x=445, y=240)
-
-# Start the Tkinter event loop
-root.mainloop()
-
-
-# In[6]:
-
-
-pip install SpeechRecognition
-
-
-# In[2]:
-
-
-pip install transformers datasets torch
-
-
-# In[4]:
-
-
-pip install gtts
-
-
-# In[5]:
-
-
-pip show gtts
-
-
-# In[6]:
-
-
-pip install PyAudio
-
-
-# In[2]:
-
-
-from tkinter import *
-from tkinter import ttk
-from googletrans import Translator, LANGUAGES
-import speech_recognition as sr
-from gtts import gTTS
-import os
-import threading
-
-root = Tk()
-root.geometry('1100x500')  # Increased height for message display
-root.resizable(0, 0)  # Disable window resizing
-root.title('Real-time Translator with Voice Input and Idiom Conversion')  # Set window title
-
-root['bg'] = '#1c1c1c'  # Dark background
-
-# Create a label for the title using grid instead of pack
+# Title
 Label(root, text="🌍 Language Translator 🌍", font="Arial 22 bold", bg='#1c1c1c', fg='white').grid(row=0, column=0, columnspan=3, pady=10)
 
-# Create a label for the input text
+# Input Text
 Label(root, text="Enter Text", font='arial 13 bold', bg='white smoke').grid(row=1, column=0, padx=10)
 Input_text = Text(root, height=3, width=50, wrap=WORD)
 Input_text.grid(row=1, column=1, padx=10)
 
-# Create a button for triggering voice input
-listen_btn = Button(root, text='Speak', font='arial 12 bold', pady=5, command=lambda: threading.Thread(target=Listen).start(), bg='lightblue', activebackground='green')
-listen_btn.grid(row=1, column=2, padx=10)
-
-# Create a button for triggering translation
-trans_btn = Button(root, text='Translate', font='arial 12 bold', pady=5, command=lambda: threading.Thread(target=Translate).start(), bg='orange', activebackground='green')
-trans_btn.grid(row=2, column=1, pady=10)
-
-# Create a label for the output
+# Output Text
 Label(root, text="Output", font='arial 13 bold', bg='white smoke').grid(row=3, column=0, padx=10)
-
-# Create a text widget for displaying the translation
 Output_text = Text(root, font='arial 10', height=5, wrap=WORD, padx=5, pady=5, width=50)
 Output_text.grid(row=3, column=1, padx=10)
 
-# Get the list of supported languages
-language = list(LANGUAGES.values())
-
-# Create a Combobox for selecting the input language (for speech recognition)
+# Input Language ComboBox
 input_lang = ttk.Combobox(root, values=language, width=22)
-input_lang.grid(row=1, column=3, padx=10,pady=7,ipady=4)
-input_lang.set('Input Language')  # Set default value
+input_lang.set("english")
+input_lang.grid(row=1, column=2, padx=10)
 
-# Create a Combobox for selecting the destination language (for translation)
+# Destination Language ComboBox
 dest_lang = ttk.Combobox(root, values=language, width=22)
-dest_lang.grid(row=2, column=0, padx=(20, 5), pady=5,ipady=4)  
-dest_lang.set('Translation Language')# Set default value
+dest_lang.set('Translation Language')
+dest_lang.grid(row=2, column=0, padx=(20, 5), pady=5, ipady=4)
 
-# Create a dictionary mapping language names to their codes
-lang_code_dict = {v: k for k, v in LANGUAGES.items()}
-
+# Idioms dictionary
 idioms_dict = {
-    "break the ice": "start a conversation",
+     "break the ice": "start a conversation",
     "piece of cake": "something very easy",
     "once in a blue moon": "very rarely",
     "barking up the wrong tree": "to pursue the wrong course of action",
@@ -307,39 +155,40 @@ idioms_dict = {
     "to hang in the balance": "to be in a situation of uncertainty",
     "to jump through hoops": "to go through a lot of effort to achieve something",
     "to keep your options open": "to remain flexible and not commit to one option",
-    "to lose your touch": "to lose the ability to do something well",
+    "to lose your touch": "to lose the ability to do something well"
 }
+
 def replace_idioms(text):
     for idiom, meaning in idioms_dict.items():
-        text = text.replace(idiom, meaning)  
+        text = text.replace(idiom, meaning)
     return text
 
-bg_color = "#f0f0f0" 
-
-info_label = Label(root, text="Info", font='arial 14 bold', bg=bg_color)  
-info_label.grid(row=9, columnspan=4, padx=10, pady=(10, 0)) 
-
+# Info Message Label and Box
+bg_color = "#f0f0f0"
+info_label = Label(root, text="Info", font='arial 14 bold', bg=bg_color)
+info_label.grid(row=9, columnspan=4, padx=10, pady=(10, 0))
 message_display = Text(root, font='arial 10', height=5, wrap=WORD, padx=5, pady=5, width=100, bg=bg_color)
 message_display.grid(row=10, columnspan=4, padx=10, pady=(10, 20))
 
 def update_message(message):
-    message_display.delete(1.0, END) 
+    message_display.delete(1.0, END)
     message_display.insert(END, message)
 
 def Translate():
     try:
-        translator = Translator()
-        selected_lang = dest_lang.get() 
-        dest_lang_code = lang_code_dict.get(selected_lang)  
+        selected_lang = dest_lang.get()
+        dest_lang_code = lang_code_dict.get(selected_lang.lower())
         if not dest_lang_code:
             update_message("Translation error: Invalid destination language selected")
             return
-        input_text_with_meaning = replace_idioms(Input_text.get("1.0", END))  
-        translation = translator.translate(input_text_with_meaning, dest=dest_lang_code)
+
+        input_text = Input_text.get("1.0", END)
+        input_text_with_meaning = replace_idioms(input_text)
+        translated_text = GoogleTranslator(source='auto', target=dest_lang_code).translate(input_text_with_meaning)
         Output_text.delete(1.0, END)
-        Output_text.insert(END, translation.text)
+        Output_text.insert(END, translated_text)
         update_message("Translation successful!")
-        Speak(translation.text)
+        Speak(translated_text)
     except Exception as e:
         update_message(f"Translation error: {e}")
 
@@ -349,7 +198,7 @@ def Listen():
         update_message("Listening...")
         try:
             selected_input_lang = input_lang.get()
-            input_lang_code = lang_code_dict.get(selected_input_lang)
+            input_lang_code = lang_code_dict.get(selected_input_lang.lower())
             if not input_lang_code:
                 update_message("Speech error: Invalid input language selected")
                 return
@@ -357,31 +206,27 @@ def Listen():
             update_message("Recognizing...")
             text = recognizer.recognize_google(audio_data, language=input_lang_code)
             update_message(f"Recognized Text: {text}")
-            Input_text.delete("1.0", END) 
-            Input_text.insert(END, text + "\n") 
+            Input_text.delete("1.0", END)
+            Input_text.insert(END, text + "\n")
         except sr.UnknownValueError:
             update_message("Google Speech Recognition could not understand the audio")
         except sr.RequestError as e:
             update_message(f"Could not request results; {e}")
+
 def Speak(text):
     try:
-        tts = gTTS(text=text, lang=lang_code_dict.get(dest_lang.get()))
+        target_lang_code = lang_code_dict.get(dest_lang.get().lower(), 'en')
+        tts = gTTS(text=text, lang=target_lang_code)
         tts.save("output.mp3")
-        os.system("start output.mp3")
+        os.system("start output.mp3")  # Use "afplay" for Mac or "xdg-open" for Linux
     except Exception as e:
         update_message(f"Speech error: {e}")
 
+# Buttons
+listen_btn = Button(root, text='🎤 Speak', font='arial 12 bold', pady=5, command=lambda: threading.Thread(target=Listen).start(), bg='lightblue', activebackground='green')
+listen_btn.grid(row=1, column=3, padx=10)
+
+trans_btn = Button(root, text='🈯 Translate', font='arial 12 bold', pady=5, command=lambda: threading.Thread(target=Translate).start(), bg='orange', activebackground='green')
+trans_btn.grid(row=2, column=1, pady=10)
+
 root.mainloop()
-
-
-# In[28]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
